@@ -1,4 +1,4 @@
-(ns transient-test.property-test
+(ns transient-test.vector-test
   (:require [clojure.test :refer :all]
             [transient-test.core :refer :all]
             [clojure.test.check.clojure-test :refer (defspec)]
@@ -15,14 +15,9 @@
               [:conj x])
             gen/int))
 
-(def gen-disj
-  (gen/fmap (fn [x]
-              [:disj x])
-            gen/int))
-
 (def gen-action
   (gen/one-of [gen-conj
-               gen-disj
+               (gen/return [:pop])
                (gen/return [:transient])
                (gen/return [:persistent!])]))
 
@@ -33,8 +28,10 @@
       (condp = [(transient? c) f]
         [true   :conj]          (conj! c arg)
         [false  :conj]          (conj c arg)
-        [true   :disj]          (disj! c arg)
-        [false  :disj]          (disj c arg)
+        [true   :pop]          (if (get c 0)
+                                 (pop! c)
+                                 c)
+        [false  :pop]          (if (seq c) (pop c) c)
         [true   :transient]     c
         [false  :transient]     (transient c)
         [true   :persistent!]   (persistent! c)
@@ -52,13 +49,13 @@
 (defn filter-actions
   [actions]
   (filter (fn [[a & args]]
-            (#{:conj :disj} a))
+            (#{:conj :pop} a))
           actions))
 
-(def transient-property
+(def transient-vector
   (prop/for-all
     [a (gen/vector gen-action)]
-    (= (apply-actions #{} a)
-       (apply-actions #{} (filter-actions a)))))
+    (= (apply-actions [] a)
+       (apply-actions [] (filter-actions a)))))
 
-(defspec transient-property-test 10000 transient-property)
+(defspec transient-vector-test 10000 transient-vector)
