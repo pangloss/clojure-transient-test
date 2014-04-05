@@ -1,4 +1,4 @@
-(ns transient-test.state-set-test
+(ns transient-test.state-test
   (:use transient-test.state)
   (:require [clojure.test :refer :all]
             [transient-test.core :refer :all]
@@ -82,10 +82,10 @@
                (gen/return [:transient])
                (gen/return [:persistent!])]))
 
-(def transient-state-set
+(def transient-state
   (prop/for-all
     [a (gen/vector gen-action)]
     (reduce-actions (new-state #{}) #{} a)
     true))
 
-(defspec transient-state-set-test 10000 transient-state-set)
+(defspec transient-state-test 10000 transient-state)
