@@ -82,27 +82,10 @@
                (gen/return [:transient])
                (gen/return [:persistent!])]))
 
-(defn apply-actions [s coll actions]
-  (reduce-actions s coll (conj (vec actions) [:persistent!])))
-
-(defn filter-actions
-  [actions]
-  (filter (fn [[a & args]]
-            (#{:conj :disj} a))
-          actions))
-
 (def transient-state-set
   (prop/for-all
     [a (gen/vector gen-action)]
-    (let [init-value #{}
-          s (new-state init-value)
-          [state1 result1] (apply-actions s init-value a)
-          [state2 result2] (apply-actions s init-value (filter-actions a))]
-      (cond (not= result1 result2) (throw (ex-info "Result mismatch" {1 result1 2 result2}))
-            (not= state1 state2) (throw (ex-info "State mismatch" {1 state1 2 state2}))
-            (not= (count (:contents state1)) (count result1)) (throw (ex-info "State wrong" {:state state1 :result result1}))
-            :else true))))
+    (reduce-actions (new-state #{}) #{} a)
+    true))
 
-(defspec transient-state-set-test 10000 transient-state-set)
-
-
+(defspec transient-state-set-test 100000 transient-state-set)

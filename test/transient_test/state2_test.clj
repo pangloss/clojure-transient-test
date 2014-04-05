@@ -112,7 +112,7 @@
             (#{:conj :pop} a))
           actions))
 
-(def transient-state
+(def transient-state2
   (prop/for-all
     [a (gen/vector gen-action)]
     (let [init-value []
@@ -124,5 +124,5 @@
             (not= (count (:contents state1)) (count result1)) (throw (ex-info "State wrong" {:state state1 :result result1}))
             :else true))))
 
-(defspec transient-state-test 10000 transient-state)
+(defspec transient-state2-test 10000 transient-state2)
 
