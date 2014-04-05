@@ -88,4 +88,4 @@
     (reduce-actions (new-state #{}) #{} a)
     true))
 
-(defspec transient-state-set-test 100000 transient-state-set)
+(defspec transient-state-set-test 10000 transient-state-set)
