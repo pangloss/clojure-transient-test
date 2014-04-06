@@ -85,7 +85,7 @@
 (def transient-state
   (prop/for-all
     [a (gen/vector gen-action)]
-    (reduce-actions (new-state #{}) #{} a)
+    (simulate-actions (new-state #{}) #{} a)
     true))
 
 (defspec transient-state-test 10000 transient-state)
